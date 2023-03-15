@@ -1,0 +1,40 @@
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: demo-nodejs
+  name: demo-nodejs-service
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: demo-nodejs
+  type: ClusterIP
+---
+#deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-nodejs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-nodejs
+  template:
+    metadata:
+      labels:
+        app: demo-nodejs
+      annotations:
+        instrumentation.opentelemetry.io/inject-nodejs: "true"
+        instrumentation.opentelemetry.io/container-names: "spring"
+    spec:
+      containers:
+      - name: spring
+        image: balu139/sample-nodejs
+        ports:
+        - containerPort: 8080

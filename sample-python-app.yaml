@@ -1,0 +1,40 @@
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: demo-python
+  name: demo-python-service
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: demo-python
+  type: ClusterIP
+---
+#deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-python
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-python
+  template:
+    metadata:
+      labels:
+        app: demo-python
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "true"
+        instrumentation.opentelemetry.io/container-names: "spring"
+    spec:
+      containers:
+      - name: spring
+        image: balu139/sample-python
+        ports:
+        - containerPort: 5000

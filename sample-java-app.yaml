@@ -1,0 +1,40 @@
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: demo-java
+  name: demo-java-service
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: demo-java
+  type: ClusterIP
+---
+#deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-java
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-java
+  template:
+    metadata:
+      labels:
+        app: demo-java
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
+        instrumentation.opentelemetry.io/container-names: "spring"
+    spec:
+      containers:
+      - name: spring
+        image: balu139/spring-java-app
+        ports:
+        - containerPort: 8080
